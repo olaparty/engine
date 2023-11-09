@@ -50,10 +50,13 @@ void SetBaseSnapshot(Settings& settings) {
   // config, where the AOT snapshot won't be linked into the process, and thus
   // lookups will fail.  Change your Scheme to Release to fix:
   // https://github.com/flutter/flutter/wiki/Debugging-the-engine#debugging-ios-builds-with-xcode
-  Shorebird_SetBaseSnapshots(isolate_snapshot->GetDataMapping(),
-                             isolate_snapshot->GetInstructionsMapping(),
-                             vm_snapshot->GetDataMapping(),
-                             vm_snapshot->GetInstructionsMapping());
+/// NOTE: This is not export in shorebird/dart-sdk, which is now closed source for now
+///   so we just comment out this function for now until they open source it which maybe happen in 6 
+///   month which they claimed.
+//   Shorebird_SetBaseSnapshots(isolate_snapshot->GetDataMapping(),
+//                              isolate_snapshot->GetInstructionsMapping(),
+//                              vm_snapshot->GetDataMapping(),
+//                              vm_snapshot->GetInstructionsMapping());
 }
 
 void ConfigureShorebird(std::string code_cache_path,

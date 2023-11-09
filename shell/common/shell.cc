@@ -42,6 +42,8 @@
 #include "third_party/skia/include/core/SkGraphics.h"
 #include "third_party/tonic/common/log.h"
 
+#include "third_party/updater/library/include/updater.h"
+
 namespace flutter {
 
 constexpr char kSkiaChannel[] = "flutter/skia";
@@ -152,6 +154,17 @@ Shell::InferVmInitDataFromSettings(Settings& settings) {
   auto vm_snapshot = DartSnapshot::VMSnapshotFromSettings(settings);
   auto isolate_snapshot = DartSnapshot::IsolateSnapshotFromSettings(settings);
   auto vm = DartVMRef::Create(settings, vm_snapshot, isolate_snapshot);
+
+// FIXME: This is probably the wrong place to hook into.  Currently we only
+// link the shorebird updater on Android, so if we don't guard this other
+// non-android targets (e.g. flutter_tester) will fail to link.
+#if FML_OS_ANDROID || FML_OS_IOS || FML_OS_WIN
+  if (!vm) {
+    shorebird_report_launch_failure();
+  } else {
+    shorebird_report_launch_success();
+  }
+#endif
 
   // If the settings did not specify an `isolate_snapshot`, fall back to the
   // one the VM was launched with.

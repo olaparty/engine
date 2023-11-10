@@ -85,9 +85,6 @@ void FlutterMain::Init(JNIEnv* env,
                        jstring kernelPath,
                        jstring appStoragePath,
                        jstring engineCachesPath,
-                       jstring shorebirdYaml,
-                       jstring version,
-                       jstring versionCode,
                        jlong initTimeMillis) {
   std::vector<std::string> args;
   args.push_back("flutter");
@@ -128,10 +125,10 @@ void FlutterMain::Init(JNIEnv* env,
   fml::paths::InitializeAndroidCachesPath(code_cache_path);
 
 #if FLUTTER_RELEASE
-  std::string shorebird_yaml = fml::jni::JavaStringToString(env, shorebirdYaml);
-  std::string version_string = fml::jni::JavaStringToString(env, version);
-  std::string version_code_string =
-      fml::jni::JavaStringToString(env, versionCode);
+  std::string shorebird_yaml = "flutter_assets/updater.yaml";//fml::jni::JavaStringToString(env, shorebirdYaml);
+  std::string version_string = "";// fml::jni::JavaStringToString(env, version);
+  std::string version_code_string = "";
+      //fml::jni::JavaStringToString(env, versionCode);
   ConfigureShorebird(code_cache_path, app_storage_path, settings,
                      shorebird_yaml, version_string, version_code_string);
 #endif
@@ -222,7 +219,6 @@ bool FlutterMain::Register(JNIEnv* env) {
       {
           .name = "nativeInit",
           .signature = "(Landroid/content/Context;[Ljava/lang/String;Ljava/"
-                       "lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/"
                        "lang/String;Ljava/lang/String;Ljava/lang/String;J)V",
           .fnPtr = reinterpret_cast<void*>(&Init),
       },

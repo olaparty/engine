@@ -15,12 +15,16 @@
 #include "flutter/common/task_runners.h"
 #include "flutter/fml/mapping.h"
 #include "flutter/fml/message_loop.h"
+#include "flutter/fml/paths.h"
 #include "flutter/fml/platform/darwin/scoped_nsobject.h"
 #include "flutter/runtime/dart_vm.h"
 #include "flutter/shell/common/shell.h"
+#include "flutter/shell/common/shorebird.h"
 #include "flutter/shell/common/switches.h"
 #import "flutter/shell/platform/darwin/common/command_line.h"
 #import "flutter/shell/platform/darwin/ios/framework/Headers/FlutterViewController.h"
+
+#include "third_party/updater/library/include/updater.h"
 
 extern "C" {
 #if FLUTTER_RUNTIME_MODE == FLUTTER_RUNTIME_MODE_DEBUG
@@ -86,10 +90,12 @@ flutter::Settings FLTDefaultSettingsForBundle(NSBundle* bundle) {
   }
 
   if (flutter::DartVM::IsRunningPrecompiledCode()) {
+    NSLog(@"SANITY CHECK: Running precompiled code.");
     if (hasExplicitBundle) {
       NSString* executablePath = bundle.executablePath;
       if ([[NSFileManager defaultManager] fileExistsAtPath:executablePath]) {
         settings.application_library_path.push_back(executablePath.UTF8String);
+        NSLog(@"Using precompiled library from %@", executablePath);
       }
     }
 
@@ -101,6 +107,7 @@ flutter::Settings FLTDefaultSettingsForBundle(NSBundle* bundle) {
         NSString* executablePath = [NSBundle bundleWithPath:libraryPath].executablePath;
         if (executablePath.length > 0) {
           settings.application_library_path.push_back(executablePath.UTF8String);
+          NSLog(@"Using library from %@", libraryPath);
         }
       }
     }
@@ -115,6 +122,7 @@ flutter::Settings FLTDefaultSettingsForBundle(NSBundle* bundle) {
             [NSBundle bundleWithPath:applicationFrameworkPath].executablePath;
         if (executablePath.length > 0) {
           settings.application_library_path.push_back(executablePath.UTF8String);
+          NSLog(@"Using App.framework from %@", applicationFrameworkPath);
         }
       }
     }
@@ -148,6 +156,33 @@ flutter::Settings FLTDefaultSettingsForBundle(NSBundle* bundle) {
         }
       }
     }
+  }
+
+  NSString* assetsPath = [NSString stringWithUTF8String:settings.assets_path.c_str()];
+  NSLog(@"ASSET PATH %@", assetsPath);
+
+  // FIXME: This may not be the correct path (e.g., should it include the organization id?)
+  // See
+  // https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW13
+  // /private/var/mobile/Containers/Data/Application/264477BF-6E38-47C9-AAD9-532BB842F197/Library/Application
+  // Support/shorebird/shorebird_updater
+  std::string cache_path =
+      fml::paths::JoinPaths({getenv("HOME"), "Library/Application Support/shorebird"});
+  NSURL* shorebirdYamlPath = [NSURL URLWithString:@"shorebird.yaml"
+                                    relativeToURL:[NSURL fileURLWithPath:assetsPath]];
+  NSString* appVersion = [mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+  NSString* appBuildNumber = [mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"];
+  NSString* shorebirdYamlContents = [NSString stringWithContentsOfURL:shorebirdYamlPath
+                                                             encoding:NSUTF8StringEncoding
+                                                                error:nil];
+  if (shorebirdYamlContents != nil) {
+    // Note: we intentionally pass cache_path twice. We provide two different directories
+    //   to ConfigureShorebird because Android differentiates between data that persists
+    //   between releases and data that does not. iOS does not make this distinction.
+    flutter::ConfigureShorebird(cache_path, cache_path, settings, shorebirdYamlContents.UTF8String,
+                                appVersion.UTF8String, appBuildNumber.UTF8String);
+  } else {
+    NSLog(@"Failed to find shorebird.yaml, not starting updater.");
   }
 
   // Domain network configuration

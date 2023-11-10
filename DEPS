@@ -20,6 +20,9 @@ vars = {
   'ocmock_git': 'https://github.com/erikdoe/ocmock.git',
   'skia_revision': '7e1844439eaa3eb24d00c6314ddc81ca532fdd1b',
 
+  'updater_git': 'https://github.com/olaparty/updater.git',
+  'updater_rev': '7551cc47b0421b8205cc6a46faf713c057960a05',
+  
   # WARNING: DO NOT EDIT canvaskit_cipd_instance MANUALLY
   # See `lib/web_ui/README.md` for how to roll CanvasKit to a new version.
   'canvaskit_cipd_instance': 'ztaLvbs5GPmlAwUosC7VVp7EQnNVknRpNuKdv7vmzaAC',
@@ -236,7 +239,7 @@ allowed_hosts = [
 ]
 
 deps = {
-  'src': 'https://github.com/flutter/buildroot.git' + '@' + '8747bce41d0dc6d9dc45c4d1b46d2100bb9ee688',
+  'src': 'https://github.com/olaparty/buildroot.git' + '@' + 'f632099f304718e0ac2fb21e8d755505bd1ef173',
 
    # Fuchsia compatibility
    #
@@ -549,6 +552,9 @@ deps = {
 
   'src/third_party/ocmock':
    Var('ocmock_git') + '@' +  Var('ocmock_rev'),
+
+  'src/third_party/updater':
+   Var('updater_git') + '@' +  Var('updater_rev'),
 
   'src/third_party/libjpeg-turbo':
    Var('fuchsia_git') + '/third_party/libjpeg-turbo' + '@' + '0fb821f3b2e570b2783a94ccd9a2fb1f4916ae9f',

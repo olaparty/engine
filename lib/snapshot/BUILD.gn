@@ -36,7 +36,7 @@ group("generate_snapshot_bins") {
   }
 
   # Build analyze_snapshot for for 64-bit target CPUs.
-  if (target_cpu == "x64" || target_cpu == "arm64") {
+  if (target_cpu == "arm64") {
     deps +=
         [ "//third_party/dart/runtime/bin:analyze_snapshot($host_toolchain)" ]
   }

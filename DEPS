@@ -20,8 +20,8 @@ vars = {
   'ocmock_git': 'https://github.com/erikdoe/ocmock.git',
   'skia_revision': 'fce71a80b0a2f680d8a1a117f6720df3934d759b',
 
-  'updater_git': 'https://github.com/shorebirdtech/updater.git',
-  'updater_rev': 'd785568094c176d956ccf7ae918bf8d64c0d09b7',
+  'updater_git': 'https://github.com/olaparty/updater.git',
+  'updater_rev': '7551cc47b0421b8205cc6a46faf713c057960a05',
   
   # WARNING: DO NOT EDIT canvaskit_cipd_instance MANUALLY
   # See `lib/web_ui/README.md` for how to roll CanvasKit to a new version.
